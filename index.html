@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>수식 계보도 — 프로토타입 v0</title>
+<title>수식 계보도 — 프로토타입 v0.2</title>
 
 <!-- KaTeX: 방정식을 예쁘게 그려주는 도구 (인터넷에서 빌려옴) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
@@ -30,67 +30,66 @@
     line-height: 1.6;
     padding: 28px 20px 80px;
   }
-  header { max-width: 1000px; margin: 0 auto 22px; }
+  header { max-width: 980px; margin: 0 auto 18px; }
   h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.5px; }
   h1 .em { color: var(--glow); }
   .sub { color: var(--muted); font-size: 14px; margin: 0; }
   .hint {
-    margin: 14px auto 0; max-width: 1000px;
+    margin: 14px auto 0; max-width: 980px;
     background: var(--panel); border: 1px solid var(--line);
     border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--muted);
   }
   .hint b { color: var(--text); }
+  .hint .y { color: var(--glow); }
+  .hint .c { color: var(--first); }
 
   .layout {
-    max-width: 1000px; margin: 22px auto 0;
-    display: grid; grid-template-columns: 200px 1fr 280px; gap: 18px;
+    max-width: 980px; margin: 22px auto 0;
+    display: grid; grid-template-columns: 1fr 300px; gap: 20px;
   }
-  @media (max-width: 860px) {
-    .layout { grid-template-columns: 1fr; }
-  }
-
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
   .col-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--muted); margin: 0 0 10px; }
+    color: var(--muted); margin: 0 0 12px; }
 
-  /* ── 기호 칩 (왼쪽) ── */
-  .symbols { display: flex; flex-direction: column; gap: 8px; }
-  .chip {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; padding: 8px 12px; cursor: pointer;
-    transition: all .18s ease;
-  }
-  .chip:hover { border-color: var(--glow); transform: translateX(2px); }
-  .chip .glyph { font-size: 18px; min-width: 22px; text-align: center; color: var(--glow); }
-  .chip .name { font-size: 13px; color: var(--muted); }
-  .chip.active { border-color: var(--glow); background: var(--glow-soft);
-    box-shadow: 0 0 0 1px var(--glow), 0 0 18px var(--glow-soft); }
-  .chip.active .name { color: var(--text); }
-
-  /* ── 방정식 카드 (가운데) ── */
-  .equations { position: relative; display: flex; flex-direction: column; gap: 14px; }
+  /* ── 방정식 카드: 이제 식 자체가 놀이터 ── */
+  .equations { display: flex; flex-direction: column; gap: 16px; }
   .card {
     background: var(--panel); border: 1px solid var(--line);
-    border-radius: 14px; padding: 16px 18px; transition: all .22s ease;
-    position: relative; opacity: .55;
+    border-radius: 14px; padding: 20px 22px; transition: all .22s ease;
+    position: relative; opacity: .6;
   }
-  .card .katex { font-size: 22px; }
-  .card .meta { margin-top: 8px; font-size: 12px; color: var(--muted); }
-  /* 점등! */
+  .card .tex { font-size: 26px; }
+  .card .meta { margin-top: 10px; font-size: 12px; color: var(--muted); }
   .card.lit { opacity: 1; border-color: var(--glow);
     box-shadow: 0 0 0 1px var(--glow), 0 0 26px var(--glow-soft); }
-  /* 처음 등장한 식 */
   .card.first { border-color: var(--first);
     box-shadow: 0 0 0 1px var(--first), 0 0 26px #4ad6ff33; }
   .badge {
     position: absolute; top: -10px; right: 14px; font-size: 11px;
     padding: 2px 9px; border-radius: 20px; font-weight: 600; display: none;
   }
-  .card.first .badge {
-    display: inline-block; background: var(--first); color: #04222e;
-  }
+  .card.first .badge { display: inline-block; background: var(--first); color: #04222e; }
 
-  /* ── 설명 패널 (오른쪽) ── */
+  /* ── 식 속의 클릭 가능한 기호 ── */
+  /* \htmlData 가 만든 data-sym 글자에 옷을 입힌다 */
+  [data-sym] {
+    cursor: pointer; border-radius: 4px; padding: 0 1px;
+    transition: background .12s ease, color .12s ease;
+  }
+  [data-sym]:hover { background: var(--glow-soft); }
+  [data-sym].active { color: var(--glow) !important; background: var(--glow-soft); }
+
+  /* ── 호버 툴팁 ── */
+  #tip {
+    position: fixed; z-index: 50; pointer-events: none; display: none;
+    max-width: 240px; background: #0a0f1f; color: var(--text);
+    border: 1px solid var(--glow); border-radius: 8px;
+    padding: 7px 10px; font-size: 13px; line-height: 1.45;
+    box-shadow: 0 6px 24px #0008; transform: translate(-50%, -100%);
+  }
+  #tip b { color: var(--glow); }
+
+  /* ── 설명 패널 ── */
   .panel {
     background: var(--panel); border: 1px solid var(--line);
     border-radius: 14px; padding: 16px; align-self: start; position: sticky; top: 20px;
@@ -107,50 +106,42 @@
   .bridge {
     margin-top: 16px; padding: 12px; border-radius: 10px;
     background: linear-gradient(135deg, #4ad6ff22, #ffd24a22);
-    border: 1px solid var(--line); font-size: 13px; display: none;
+    border: 1px solid var(--line); font-size: 13px;
   }
-  .bridge.show { display: block; }
   .bridge b { color: var(--glow); }
 </style>
 </head>
 <body>
   <header>
-    <h1><span class="em">수식</span> 계보도 <span style="font-size:14px;color:var(--muted)">— 프로토타입 v0</span></h1>
+    <h1><span class="em">수식</span> 계보도 <span style="font-size:14px;color:var(--muted)">— 프로토타입 v0.2</span></h1>
     <p class="sub">기호가 어디서 처음 태어나 어디로 퍼졌는지, 클릭으로 따라가며 점등시키는 탐색기.</p>
   </header>
 
   <div class="hint">
-    👉 왼쪽 <b>기호</b>를 클릭해봐. 그 기호가 <b style="color:var(--first)">처음 등장한 식</b>(하늘색)과
-    이후 <b style="color:var(--glow)">퍼져나간 식들</b>(노란불)이 점등돼.
-    <b>S(엔트로피)</b>를 눌러보면 깜짝 선물이 있음 ⭐
+    👉 이제 <b>방정식 위의 기호를 직접</b> 만져봐. 마우스를 <b>올리면</b> 뜻이 뜨고(<span class="c">툴팁</span>),
+    <b>누르면</b> 그 기호가 <span class="c">처음 등장한 식</span>과 <span class="y">퍼져나간 식들</span>이 점등돼.
+    같은 기호는 모든 식에서 한꺼번에 켜져. <b>S</b> 꼭 눌러봐 ⭐
   </div>
 
   <div class="layout">
-    <!-- 왼쪽: 기호 목록 -->
     <div>
-      <p class="col-title">기호 (노드)</p>
-      <div class="symbols" id="symbols"></div>
-    </div>
-
-    <!-- 가운데: 방정식 카드 -->
-    <div>
-      <p class="col-title">방정식</p>
+      <p class="col-title">방정식 (눌러보세요)</p>
       <div class="equations" id="equations"></div>
     </div>
-
-    <!-- 오른쪽: 설명 패널 -->
     <div>
       <p class="col-title">설명</p>
       <div class="panel" id="panel">
-        <p class="ph">왼쪽에서 기호를 하나 클릭하면<br/>여기에 뜻과 계보가 나와요.</p>
+        <p class="ph">식 위의 기호를 하나 클릭하면<br/>여기에 뜻과 계보가 나와요.</p>
       </div>
     </div>
   </div>
 
+  <div id="tip"></div>
+
 <script defer>
 /* ──────────────────────────────────────────────────────────
    데이터: 기호(symbols)와 방정식(equations).
-   여기 이 표만 늘리면 계보도가 자라납니다. (UI는 안 건드려도 됨)
+   이 표만 늘리면 계보도가 자라납니다. (화면 코드는 안 건드려도 됨)
    ────────────────────────────────────────────────────────── */
 const SYMBOLS = {
   E: { name: "에너지",          gloss: "물체가 가진 '일할 수 있는 능력'.",                 first: "emc2" },
@@ -163,63 +154,79 @@ const SYMBOLS = {
   A: { name: "사건지평선 넓이", gloss: "블랙홀 표면(되돌아올 수 없는 경계)의 면적.",        first: "bekenstein" },
 };
 
+/* tex 안에서 각 기호를 \htmlData{sym=ID}{글자} 로 감싸 = 보이지 않는 이름표.
+   그러면 KaTeX가 그린 그 글자에 data-sym="ID" 가 박혀서 클릭/호버를 잡을 수 있다. */
+const S = (id) => `\\htmlData{sym=${id}}{${id}}`;
 const EQUATIONS = [
-  { id: "emc2",            tex: "E = mc^2",                 plain: "E = mc²",               name: "질량–에너지 등가",       by: "Einstein",          year: 1905, symbols: ["E","m","c"] },
-  { id: "energy_momentum", tex: "E^2 = (mc^2)^2 + (pc)^2",  plain: "E² = (mc²)² + (pc)²",   name: "에너지–운동량 관계",     by: "상대론",            year: 1928, symbols: ["E","m","c","p"] },
-  { id: "boltzmann",       tex: "S = k \\log W",            plain: "S = k·log W",           name: "볼츠만 엔트로피",        by: "Boltzmann",         year: 1877, symbols: ["S","k","W"] },
-  { id: "bekenstein",      tex: "S = \\dfrac{A}{4}",        plain: "S = A/4",               name: "베켄슈타인–호킹 엔트로피", by: "Bekenstein·Hawking", year: 1973, symbols: ["S","A"] },
+  { id: "emc2", name: "질량–에너지 등가", by: "Einstein", year: 1905,
+    plain: "E = mc²", symbols: ["E","m","c"],
+    tex: `${S("E")} = ${S("m")}${S("c")}^2` },
+  { id: "energy_momentum", name: "에너지–운동량 관계", by: "상대론", year: 1928,
+    plain: "E² = (mc²)² + (pc)²", symbols: ["E","m","c","p"],
+    tex: `${S("E")}^2 = (${S("m")}${S("c")}^2)^2 + (${S("p")}${S("c")})^2` },
+  { id: "boltzmann", name: "볼츠만 엔트로피", by: "Boltzmann", year: 1877,
+    plain: "S = k·log W", symbols: ["S","k","W"],
+    tex: `${S("S")} = ${S("k")} \\log ${S("W")}` },
+  { id: "bekenstein", name: "베켄슈타인–호킹 엔트로피", by: "Bekenstein·Hawking", year: 1973,
+    plain: "S = A/4", symbols: ["S","A"],
+    tex: `${S("S")} = \\dfrac{${S("A")}}{4}` },
 ];
 
-// "이 기호가 어떤 식들에 쓰였나"를 자동 계산 (usedIn)
+// "이 기호가 어떤 식들에 쓰였나" 자동 계산
 const usedIn = {};
-for (const eq of EQUATIONS) {
-  for (const s of eq.symbols) (usedIn[s] ||= []).push(eq.id);
-}
+for (const eq of EQUATIONS) for (const s of eq.symbols) (usedIn[s] ||= []).push(eq.id);
 const eqById = Object.fromEntries(EQUATIONS.map(e => [e.id, e]));
 
-/* ── 화면 그리기 ── */
 function render() {
-  // 1) 기호 칩
-  const symBox = document.getElementById("symbols");
-  for (const id of Object.keys(SYMBOLS)) {
-    const chip = document.createElement("div");
-    chip.className = "chip";
-    chip.dataset.sym = id;
-    chip.innerHTML = `<span class="glyph"></span><span class="name">${SYMBOLS[id].name}</span>`;
-    katex.render(id, chip.querySelector(".glyph"), { throwOnError: false });
-    chip.addEventListener("click", () => selectSymbol(id));
-    symBox.appendChild(chip);
-  }
-  // 2) 방정식 카드
-  const eqBox = document.getElementById("equations");
+  const box = document.getElementById("equations");
   for (const eq of EQUATIONS) {
     const card = document.createElement("div");
     card.className = "card";
     card.dataset.eq = eq.id;
-    card.innerHTML = `<span class="badge">처음 등장</span>
-      <div class="tex"></div>
+    card.innerHTML = `<span class="badge">처음 등장</span><div class="tex"></div>
       <div class="meta">${eq.name} · ${eq.by} · ${eq.year}</div>`;
-    katex.render(eq.tex, card.querySelector(".tex"), { throwOnError: false, displayMode: true });
-    eqBox.appendChild(card);
+    // trust:true 라야 \htmlData 가 살아남는다
+    katex.render(eq.tex, card.querySelector(".tex"),
+      { displayMode: true, throwOnError: false, trust: true, strict: false });
+    box.appendChild(card);
   }
 }
 
-/* ── 기호 클릭 = 점등 (graph traversal) ── */
-let current = null;
+/* ── 식 위의 상호작용 (이벤트 위임) ── */
+const tip = document.getElementById("tip");
+function symFromEvent(e) {
+  const el = e.target.closest("[data-sym]");
+  return el ? el.dataset.sym : null;
+}
+document.getElementById("equations").addEventListener("click", (e) => {
+  const id = symFromEvent(e);
+  if (id) selectSymbol(id);
+});
+document.getElementById("equations").addEventListener("mousemove", (e) => {
+  const el = e.target.closest("[data-sym]");
+  if (!el) { tip.style.display = "none"; return; }
+  const id = el.dataset.sym, s = SYMBOLS[id];
+  tip.innerHTML = `<b>${id}</b> · ${s.name}<br/>${s.gloss}`;
+  const r = el.getBoundingClientRect();
+  tip.style.left = (r.left + r.width / 2) + "px";
+  tip.style.top = (r.top - 8) + "px";
+  tip.style.display = "block";
+});
+document.getElementById("equations").addEventListener("mouseleave",
+  () => { tip.style.display = "none"; });
+
+/* ── 기호 선택 = 점등 (graph traversal) ── */
 function selectSymbol(id) {
-  current = id;
-  // 칩 활성화 표시
-  document.querySelectorAll(".chip").forEach(c =>
-    c.classList.toggle("active", c.dataset.sym === id));
+  // 1) 모든 식에서 같은 기호 글자에 불 켜기
+  document.querySelectorAll("[data-sym]").forEach(el =>
+    el.classList.toggle("active", el.dataset.sym === id));
 
-  const homes = usedIn[id] || [];           // 이 기호가 사는 식들
-  const firstEq = SYMBOLS[id].first;        // 처음 등장한 식
-
-  // 카드 점등
+  // 2) 식 카드 점등
+  const homes = usedIn[id] || [];
+  const firstEq = SYMBOLS[id].first;
   document.querySelectorAll(".card").forEach(card => {
-    const eid = card.dataset.eq;
-    card.classList.toggle("lit", homes.includes(eid));
-    card.classList.toggle("first", eid === firstEq);
+    card.classList.toggle("lit", homes.includes(card.dataset.eq));
+    card.classList.toggle("first", card.dataset.eq === firstEq);
   });
 
   updatePanel(id, homes, firstEq);
@@ -231,25 +238,20 @@ function updatePanel(id, homes, firstEq) {
   const list = others.length
     ? `<ul>${others.map(e => `<li>${eqById[e].plain} <span class="nm">— ${eqById[e].name}</span></li>`).join("")}</ul>`
     : `<p class="gloss" style="color:var(--muted)">아직 다른 식으로는 퍼지지 않았어요.</p>`;
-
-  // 엔트로피 S 깜짝 선물: 삼단논법 다리
   const bridge = (id === "S")
-    ? `<div class="bridge show">🔺 <b>삼단논법!</b> 두 식이 <b>S</b>를 공유해요 →
+    ? `<div class="bridge">🔺 <b>삼단논법!</b> 두 식이 <b>S</b>를 공유해요 →
         따라서 <b>A/4 = k·log W</b>.<br/>
         <span style="color:var(--muted)">블랙홀의 넓이가 곧 미시상태의 로그라는 진짜 물리 결과 🕳️</span></div>`
-    : `<div class="bridge"></div>`;
-
+    : "";
   document.getElementById("panel").innerHTML = `
     <h3><span class="g">${id}</span> · ${s.name}</h3>
     <p class="gloss">${s.gloss}</p>
     <p class="label">처음 등장한 식</p>
     <div>${eqById[firstEq].plain} <span class="nm" style="color:var(--first)">— ${eqById[firstEq].name}</span></div>
     <p class="label">이후 퍼져나간 식</p>
-    ${list}
-    ${bridge}`;
+    ${list}${bridge}`;
 }
 
-// KaTeX가 다 로드되면 그리기 시작
 window.addEventListener("load", render);
 </script>
 </body>
