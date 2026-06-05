@@ -1,0 +1,9 @@
+{
+  // ↓ 이 폴더를 VS Code로 열면, 아래 확장들을 "설치할까요?" 하고 물어봐 줍니다.
+  //   (작가님이 직접 클릭해야 깔립니다. 자동 설치는 아니에요 — 안심하세요.)
+  "recommendations": [
+    "foam.foam-vscode",        // Foam: 노트를 별자리 그래프로
+    "divisionseven.unified-kanban", // 칸반: 마크다운을 포스트잇 보드로 (옵시디언 형식 호환)
+    "jeddak.md-kanban"         // 칸반 대안: 위 게 안 맞으면 이걸로
+  ]
+}
